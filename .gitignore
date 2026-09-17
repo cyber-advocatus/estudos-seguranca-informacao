@@ -1,0 +1,12 @@
+# Arquivos de máquinas virtuais (VMware)
+*.vmdk
+*.vmx
+*.vmem
+*.vmsd
+*.vmsn
+*.nvram
+*.vmss
+*.lck/
+
+# macOS
+.DS_Store
