@@ -10,3 +10,11 @@
 
 # macOS
 .DS_Store
+
+# Qiskit / Python
+qiskit-env/
+__pycache__/
+*.pyc
+.qiskit/
+qiskit-ibm.json
+*token*
