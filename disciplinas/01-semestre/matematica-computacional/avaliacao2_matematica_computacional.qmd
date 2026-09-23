@@ -1,0 +1,387 @@
+---
+title: "Avaliação 2 — Matemática Computacional"
+subtitle: "Aprendizagem Baseada em Problemas | Aulas 05 a 09"
+author: "Luiz Otavio de Faria Rosa"
+date: today
+lang: pt-BR
+format:
+  html:
+    toc: true
+    toc-title: "Questões"
+    number-sections: false
+    theme: cosmo
+    code-fold: false
+    embed-resources: true
+execute:
+  echo: true
+  warning: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+**Dica:** funções úteis do R base: `matrix()`, `t()`, `solve()`, `det()`, `%*%`, `factorial()`, `choose()`, `sum()`, `prod()`.
+
+---
+
+# Problema 1 - Controle de notas da faculdade (Matrizes) [2,0 pontos]
+
+A coordenação do curso de TI registrou as notas de 5 alunos em 4 avaliações (Prova 1, Prova 2, Substitutiva e Final):
+
+|**Aluno**|**Prova 1**|**Prova 2**|**Sub**|**Final**|
+|---|---|---|---|---|
+|Aluno 1|4,3|8,6|6,5|5,9|
+|Aluno 2|8,0|7,4|8,7|7,2|
+|Aluno 3|3,9|5,1|9,0|7,3|
+|Aluno 4|4,9|8,3|5,4|7,6|
+|Aluno 5|5,7|10,0|4,2|9,5|
+
+**a)** Construa essa tabela como uma matriz `N` de ordem 5 × 4 no R, usando a função `matrix()`. Exiba a matriz e sua dimensão com `dim()`.
+
+```{r q1a}
+# Definindo os dados por linha para manter a organização igual à tabela original
+dados_notas <- c(4.3, 8.6, 6.5, 5.9,
+                 8.0, 7.4, 8.7, 7.2,
+                 3.9, 5.1, 9.0, 7.3,
+                 4.9, 8.3, 5.4, 7.6,
+                 5.7, 10.0, 4.2, 9.5)
+
+# Criando a matriz especificando o preenchimento por linhas (byrow = TRUE)
+N <- matrix(dados_notas, nrow = 5, ncol = 4, byrow = TRUE)
+
+# Nomeando linhas e colunas para melhor visualização
+rownames(N) <- paste("Aluno", 1:5)
+colnames(N) <- c("Prova 1", "Prova 2", "Sub", "Final")
+
+# Exibindo a matriz e sua dimensão
+print(N)
+dim(N)
+```
+
+**b)** Usando indexação de matrizes (`N[i, j]`), extraia: (1) a nota do Aluno 3 na Substitutiva; (2) todas as notas do Aluno 5; (3) todas as notas da Prova 2.
+
+```{r q1b}
+# (1) Nota do Aluno 3 na Substitutiva (Linha 3, Coluna 3)
+nota_al3_sub <- N[3, 3]
+print(paste("Nota do Aluno 3 na Sub:", nota_al3_sub))
+
+# (2) Todas as notas do Aluno 5 (Linha 5, omitindo o índice da coluna)
+notas_al5 <- N[5, ]
+print("Todas as notas do Aluno 5:")
+print(notas_al5)
+
+# (3) Todas as notas da Prova 2 (Coluna 2, omitindo o índice da linha)
+notas_p2 <- N[, 2]
+print("Todas as notas da Prova 2:")
+print(notas_p2)
+```
+
+**c)** Construa a matriz transposta `t(N)` e exiba sua dimensão.
+
+```{r q1c}
+# Calculando a matriz transposta com t()
+N_transposta <- t(N)
+
+# Exibindo a matriz transposta e suas novas dimensões
+print(N_transposta)
+dim(N_transposta)
+```
+
+**d) Interpretação:** No contexto desse problema, o que cada linha e cada coluna da matriz transposta passam a representar? Em que situação prática a coordenação preferiria trabalhar com a transposta?
+
+> Na matriz transposta $t(N)$, a estrutura original sofre uma reflexão sobre a sua diagonal principal: as **linhas passam a representar as avaliações** (Prova 1, Prova 2, Sub e Final) e as **colunas passam a representar os alunos** (Aluno 1 ao Aluno 5), invertendo a dimensão de $5 \times 4$ para $4 \times 5$.
+>
+> A coordenação do curso preferiria trabalhar com a transposta quando o foco da análise estatística estiver focado nas **avaliações em vez dos alunos**. Por exemplo: para calcular rapidamente métricas globais de cada prova (como a média geral da Prova 1, desvio padrão ou a taxa de reprovação por avaliação) utilizando funções aplicadas por linha (`rowMeans(t(N))`), ou quando o sistema visual de relatórios exigir um layout horizontal focado no cronograma de exames aplicados.
+
+---
+
+# Problema 2 - Gestão de estoque de duas lojas (Operações com matrizes) [2,0 pontos]
+
+Uma rede possui duas lojas de informática em Brasília. As matrizes abaixo registram o estoque (em unidades) de 3 produtos (linhas: mouse, teclado, monitor) em 2 depósitos (colunas: Depósito A, Depósito B):
+
+$$\text{Janeiro} = \begin{bmatrix} 120 & 80 \\ 95 & 60 \\ 40 & 25 \end{bmatrix} \qquad \text{Fevereiro} = \begin{bmatrix} 90 & 100 \\ 70 & 85 \\ 55 & 30 \end{bmatrix}$$
+
+**a)** Crie as duas matrizes no R e calcule o **estoque total** do bimestre (soma das matrizes).
+
+```{r q2a}
+# Criando a matriz de Janeiro
+Janeiro <- matrix(c(120, 80, 95, 60, 40, 25), nrow = 3, ncol = 2, byrow = TRUE)
+rownames(Janeiro) <- c("mouse", "teclado", "monitor")
+colnames(Janeiro) <- c("Depósito A", "Depósito B")
+
+# Criando a matriz de Fevereiro
+Fevereiro <- matrix(c(90, 100, 70, 85, 55, 30), nrow = 3, ncol = 2, byrow = TRUE)
+rownames(Fevereiro) <- c("mouse", "teclado", "monitor")
+colnames(Fevereiro) <- c("Depósito A", "Depósito B")
+
+# Adição de matrizes para obter o estoque total do bimestre
+Estoque_Bimestre <- Janeiro + Fevereiro
+print(Estoque_Bimestre)
+```
+
+**b)** Calcule a **variação de estoque** entre fevereiro e janeiro (Fevereiro − Janeiro). Exiba o resultado.
+
+```{r q2b}
+# Subtração matricial para calcular a variação temporal de estoque
+Variacao_Estoque <- Fevereiro - Janeiro
+print(Variacao_Estoque)
+```
+
+**c)** A rede planeja **aumentar todo o estoque de fevereiro em 30%** para o mês de março. Use o produto de um número real por uma matriz para obter a projeção de março.
+
+```{r q2c}
+# Multiplicação por escalar: aumentar em 30% é o mesmo que multiplicar por 1.30
+Projecao_Marco <- 1.30 * Fevereiro
+print(Projecao_Marco)
+```
+
+**d)** O preço unitário de venda é: mouse R$ 45, teclado R$ 120, monitor R$ 950. Construa uma matriz linha `P` (1 × 3) com os preços e use o **produto matricial** (`%*%`) para calcular o valor total do estoque de fevereiro em cada depósito.
+
+```{r q2d}
+# Construindo a matriz linha P (1 x 3)
+P <- matrix(c(45, 120, 950), nrow = 1, ncol = 3)
+colnames(P) <- c("mouse", "teclado", "monitor")
+rownames(P) <- "Preço"
+
+# Produto matricial entre P (1 x 3) e Fevereiro (3 x 2) gerando o valor por depósito (1 x 2)
+Valor_Estoque_Fev <- P %*% Fevereiro
+colnames(Valor_Estoque_Fev) <- c("Depósito A", "Depósito B")
+rownames(Valor_Estoque_Fev) <- "Valor Total (R$)"
+
+print(Valor_Estoque_Fev)
+```
+
+**e) Interpretação:** Observe a matriz de variação do item (b). Algum elemento ficou negativo? O que um valor negativo significa para o gestor da loja? E sobre o item (d): por que a ordem das matrizes no produto `P %*% Fevereiro` funciona, mas `Fevereiro %*% P` geraria erro?
+
+> Sim, na matriz de variação, observamos valores negativos nos mouses do Depósito A (-30) e nos teclados do Depósito A (-25). Para o gestor da loja, **um valor negativo significa uma redução líquida no nível físico do estoque**, indicando que o volume de saídas (vendas, transferências ou perdas) superou qualquer entrada de mercadoria nesse depósito específico durante o mês de fevereiro.
+>
+> Sobre o produto de matrizes, a operação matemática exige que o **número de colunas da primeira matriz seja idêntico ao número de linhas da segunda**. No produto `P %*% Fevereiro`, multiplicamos uma matriz com dimensões $(1 \times \mathbf{3})$ por outra de $(\mathbf{3} \times 2)$. Como $3 = 3$, a operação é perfeitamente válida e gera uma matriz resultante $(1 \times 2)$.
+>
+> Por outro lado, tentar executar `Fevereiro %*% P` significaria cruzar dimensões $(3 \times \mathbf{2})$ com $(\mathbf{1} \times 3)$. Como o número de colunas da primeira ($2$) difere do número de linhas da segunda ($1$), os vetores não se alinham aritmeticamente, gerando um erro de conformidade dimensional no R.
+
+---
+
+# Problema 3 - O sistema tem solução? (Determinantes) [2,0 pontos]
+
+Uma analista de dados montou um modelo linear simples que resultou no sistema de equações representado pela matriz de coeficientes:
+
+$$A = \begin{bmatrix} 2 & 1 & 3 \\ 4 & 2 & 6 \\ 1 & 0 & 5 \end{bmatrix} \qquad B = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ 7 & 8 & 10 \end{bmatrix}$$
+
+**a)** Calcule, no R, o determinante das matrizes `A` e `B` usando a função `det()`.
+
+```{r q3a}
+# Definindo as matrizes quadradas de ordem 3
+A <- matrix(c(2, 1, 3, 4, 2, 6, 1, 0, 5), nrow = 3, ncol = 3, byrow = TRUE)
+B <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 10), nrow = 3, ncol = 3, byrow = TRUE)
+
+# Calculando os determinantes
+det_A <- det(A)
+det_B <- det(B)
+
+print(paste("Determinante de A:", det_A))
+print(paste("Determinante de B:", det_B))
+```
+
+**b)** Para a matriz que possui inversa, calcule-a usando `solve()` e **verifique** que o produto da matriz pela sua inversa resulta na matriz identidade (use `round()` para facilitar a leitura).
+
+```{r q3b}
+# A matriz B possui determinante diferente de zero (não-singular), logo possui inversa
+B_inversa <- solve(B)
+print("Matriz Inversa de B:")
+print(B_inversa)
+
+# Verificação: B %*% B_inversa deve resultar na Matriz Identidade de ordem 3
+Identidade_Verif <- B %*% B_inversa
+print("Verificação do produto (Arredondado):")
+print(round(Identidade_Verif, 2))
+```
+
+**c)** Confirme "manualmente" o determinante da matriz `B` aplicando a **Regra de Sarrus** no R: escreva a expressão aritmética com os elementos `B[i, j]` (produtos das diagonais), sem usar `det()`.
+
+```{r q3c}
+# Diagonais principais (soma dos produtos)
+diag_principal <- (B[1,1] * B[2,2] * B[3,3]) +
+                  (B[1,2] * B[2,3] * B[3,1]) +
+                  (B[1,3] * B[2,1] * B[3,2])
+
+# Diagonais secundárias (subtração dos produtos)
+diag_secundaria <- (B[1,3] * B[2,2] * B[3,1]) +
+                   (B[1,1] * B[2,3] * B[3,2]) +
+                   (B[1,2] * B[2,1] * B[3,3])
+
+# Determinante manual final por Sarrus
+det_manual_B <- diag_principal - diag_secundaria
+print(paste("Determinante manual de B via Sarrus:", det_manual_B))
+```
+
+**d) Interpretação:** Uma das matrizes acima tem determinante igual a zero. Olhando para as linhas dessa matriz, explique **por que** isso acontece (que relação existe entre as linhas?) e o que isso implica para o sistema de equações da analista: ele tem solução única?
+
+> A matriz que possui determinante igual a zero é a **matriz A**. Ao analisarmos as suas linhas detalhadamente, verificamos que existe uma **Dependência Linear (DL)** clara: a segunda linha ($L_2 = [4, 2, 6]$) é exatamente o dobro da primeira linha ($L_1 = [2, 1, 3]$), ou seja, $L_2 = 2 \cdot L_1$. Propriedades dos determinantes estabelecem que, se uma matriz quadrada possui linhas linearmente dependentes (múltiplas uma da outra), o seu determinante será nulo.
+>
+> Para o modelo linear e o sistema de equações montado pela analista, isto implica que **o sistema não possui uma solução única** (o sistema é classificado como Singular). Na prática algébrica, pode ser um Sistema Possível e Indeterminado (SPI), apresentando infinitas soluções que partilham a mesma dependência, ou um Sistema Impossível (SI), caso as constantes associadas contradigam a relação linear. A analista não conseguirá estimar parâmetros únicos de forma direta sem antes ajustar o modelo para remover essa redundância de dados.
+
+---
+
+# Problema 4 - Segurança de senhas no TI (Análise combinatória) [2,0 pontos]
+
+A equipe de segurança da informação da faculdade precisa definir a política de senhas do novo sistema acadêmico.
+
+**a)** Quantas senhas de 4 dígitos numéricos (0 a 9) são possíveis **com repetição** de dígitos? E **sem repetição**? Calcule as duas quantidades no R (use o princípio fundamental da contagem e/ou `factorial()`).
+
+```{r q4a}
+# Temos 10 opções de dígitos disponíveis (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+# Com repetição: Principio Fundamental da Contagem (10 * 10 * 10 * 10)
+com_repeticao <- 10^4
+
+# Sem repetição: Arranjo simples de 10 elementos tomados 4 a 4
+sem_repeticao <- factorial(10) / factorial(10 - 4)
+
+print(paste("Senhas possíveis COM repetição de dígitos:", com_repeticao))
+print(paste("Senhas possíveis SEM repetição de dígitos:", sem_repeticao))
+```
+
+**b)** O sistema sorteia, para cada usuário, um **comitê de redefinição de senha** formado por 3 servidores escolhidos entre 10 disponíveis. A ordem da escolha não importa. Quantos comitês diferentes são possíveis? Use `choose()` e confirme o resultado com a fórmula da combinação escrita com `factorial()`.
+
+```{r q4b}
+# Como a ordem dos servidores no comitê não importa, trata-se de uma Combinação Simples
+comites_choose <- choose(10, 3)
+
+# Confirmação matemática através da fórmula analítica: n! / (k! * (n-k)!)
+comites_formula <- factorial(10) / (factorial(3) * factorial(10 - 3))
+
+print(paste("Comitês calculados com choose():", comites_choose))
+print(paste("Comitês calculados com factorial():", comites_formula))
+```
+
+**c)** Já o **painel de premiação** do hackathon da faculdade escolhe, entre os mesmos 10 servidores, um presidente, um secretário e um relator (cargos distintos). Quantas formações são possíveis? Calcule no R.
+
+```{r q4c}
+# Como os cargos são distintos, a ordem da escolha importa. Trata-se de um Arranjo Simples
+formacoes_painel <- factorial(10) / factorial(10 - 3)
+print(paste("Formações distintas possíveis para o painel de premiação:", formacoes_painel))
+```
+
+**d)** Quantos anagramas distintos possui a palavra **BRASILIA** (atenção às letras repetidas)? Calcule no R com `factorial()`.
+
+```{r q4d}
+# A palavra BRASILIA possui 8 letras no total (n = 8)
+# Letras repetidas: 'A' aparece 2 vezes; 'I' aparece 2 vezes
+# Trata-se de uma Permutação com Repetição: P_8^{2, 2} = 8! / (2! * 2!)
+
+total_letras <- 8
+rep_A <- 2
+rep_I <- 2
+
+anagramas_brasilia <- factorial(total_letras) / (factorial(rep_A) * factorial(rep_I))
+print(paste("Quantidade de anagramas da palavra BRASILIA:", anagramas_brasilia))
+```
+
+**e) Interpretação:** Os itens (b) e (c) usam os mesmos 10 servidores e grupos de 3 pessoas, mas os resultados são diferentes. Explique, com suas palavras, **qual é o critério** que define quando um problema é de combinação e quando é de arranjo, e por que isso muda tanto o resultado.
+
+> O critério fundamental que diferencia os dois problemas é a **relevância da ordem ou da função dos elementos dentro do grupo formado**.
+>
+> - No **item (b) (Combinação)**, estamos a formar um conjunto homogéneo (um comitê). Se escolhermos o Servidor X, Y e Z, a equipa de suporte será exatamente a mesma se tivéssemos selecionado Z, Y e X. Como a ordem não gera uma nova estrutura, dividimos o resultado pelo fatorial do tamanho do grupo ($3! = 6$) para eliminar as duplicidades de contagem, totalizando apenas 120 agrupamentos.
+>
+> - No **item (c) (Arranjo)**, os indivíduos assumem atribuições ou cargos específicos e hierárquicos (Presidente, Secretário e Relator). Selecionar X para Presidente é completamente diferente de selecionar X para Relator, pois os papéis práticos no painel mudam. Como cada permutação interna gera uma configuração inédita, a ordem importa estritamente, elevando a quantidade de cenários possíveis para 720 (exatamente 6 vezes mais do que na combinação).
+
+---
+
+# Problema 5 - Lote de peças com defeito (Probabilidade) [2,0 pontos]
+
+O laboratório de hardware da faculdade recebeu um lote com **120 fontes de alimentação**, das quais **36 estão com defeito** e 84 estão perfeitas. Além disso, no estoque há fichas numeradas de 1 a 200 usadas para sorteio de bancadas.
+
+**a)** Sorteando uma fonte ao acaso, qual a probabilidade de ela ser **perfeita**? E de ser **defeituosa**? Calcule no R e apresente os resultados em fração decimal **e** em percentual.
+
+```{r q5a}
+total_fontes <- 120
+defeituosas <- 36
+perfeitas <- 84
+
+# Probabilidades decimais
+p_perfeita_dec <- perfeitas / total_fontes
+p_defeit_dec <- defeituosas / total_fontes
+
+# Probabilidades percentuais
+p_perfeita_pct <- p_perfeita_dec * 100
+p_defeit_pct <- p_defeit_dec * 100
+
+print(paste0("Probabilidade Perfeita: ", p_perfeita_dec, " (", p_perfeita_pct, "%)"))
+print(paste0("Probabilidade Defeituosa: ", p_defeit_dec, " (", p_defeit_pct, "%)"))
+```
+
+**b)** Sorteando uma ficha da urna (1 a 200), qual a probabilidade de obter um número **maior que 80**? Construa o espaço amostral no R com `1:200` e use operações vetoriais (ex.: `sum(fichas > 80)`) para contar os casos favoráveis.
+
+```{r q5b}
+# Definindo o espaço amostral ómega
+fichas <- 1:200
+
+# Contando os casos favoráveis (números de 81 a 200)
+casos_favoraveis <- sum(fichas > 80)
+total_casos <- length(fichas)
+
+# Cálculo da probabilidade
+p_maior_80 <- casos_favoraveis / total_casos
+
+print(paste("Casos favoráveis (> 80):", casos_favoraveis))
+print(paste("Probabilidade de ficha > 80:", p_maior_80, "ou", p_maior_80 * 100, "%"))
+```
+
+**c)** No lançamento de **dois dados**, calcule a probabilidade de a soma das faces ser **igual a 9** e de ser **maior que 9**. Dica: construa todo o espaço amostral com `expand.grid(d1 = 1:6, d2 = 1:6)` e conte os casos favoráveis.
+
+```{r q5c}
+# Criando o espaço amostral bidimensional de dois dados (36 combinações equiprováveis)
+espaco_dados <- expand.grid(d1 = 1:6, d2 = 1:6)
+
+# Calculando o vetor com a soma de cada par do espaço amostral
+somas <- espaco_dados$d1 + espaco_dados$d2
+
+# (1) Soma IGUAL a 9
+favoraveis_9 <- sum(somas == 9)
+p_igual_9 <- favoraveis_9 / length(somas)
+
+# (2) Soma MAIOR que 9
+favoraveis_maior_9 <- sum(somas > 9)
+p_maior_9 <- favoraveis_maior_9 / length(somas)
+
+print(paste0("Probabilidade (Soma = 9): ", round(p_igual_9, 4), " (", round(p_igual_9*100, 2), "%)"))
+print(paste0("Probabilidade (Soma > 9): ", round(p_maior_9, 4), " (", round(p_maior_9*100, 2), "%)"))
+```
+
+**d)** Ainda com os dois dados: qual a probabilidade de a soma ser **igual a 13**? E **menor que 15**? Calcule no R.
+
+```{r q5d}
+# Utilizando o mesmo vetor 'somas' do item anterior
+
+# (1) Soma IGUAL a 13
+favoraveis_13 <- sum(somas == 13)
+p_igual_13 <- favoraveis_13 / length(somas)
+
+# (2) Soma MENOR que 15
+favoraveis_menor_15 <- sum(somas < 15)
+p_menor_15 <- favoraveis_menor_15 / length(somas)
+
+print(paste("Probabilidade de a soma ser IGUAL a 13:", p_igual_13))
+print(paste("Probabilidade de a soma ser MENOR que 15:", p_menor_15))
+```
+
+**e) Interpretação:** Os resultados do item (d) correspondem a dois tipos especiais de evento estudados em aula. Como eles se chamam e o que seus valores de probabilidade (0 e 1) significam na prática? Por fim: se o laboratório sortear uma fonte, verificar que é defeituosa e **não devolvê-la ao lote**, a probabilidade do segundo sorteio muda? Explique.
+
+> Os resultados do item (d) ilustram dois conceitos fundamentais e limítrofes da teoria das probabilidades:
+>
+> 1. O evento "soma igual a 13" possui probabilidade igual a **0** e chama-se **Evento Impossível**. Na prática, significa que ele jamais ocorrerá sob as regras estabelecidas, pois o valor máximo realizável em dois dados convencionais é 12 ($6 + 6$).
+>
+> 2. O evento "soma menor que 15" possui probabilidade igual a **1** (ou 100%) e chama-se **Evento Certo**. Significa que a sua ocorrência é absolutamente garantida em qualquer jogada válida, visto que todo o espaço amostral disponível atende à restrição de possuir soma menor que 15.
+>
+> Com relação ao sorteio sequencial das fontes de alimentação, caso a primeira fonte defeituosa seja retirada e **não devolvida** (amostragem sem reposição), **a probabilidade do segundo sorteio muda obrigatoriamente**. Isso ocorre porque o espaço amostral original foi alterado: o número total de fontes cairá de 120 para 119, e o número de fontes defeituosas cairá de 36 para 35. Assim, a probabilidade de extrair uma segunda fonte defeituosa passa a ser de $\frac{35}{119} \approx 29,41\%$, enquanto a probabilidade inicial era de $\frac{36}{120} = 30\%$, configurando um cenário clássico de **eventos dependentes**.
+
+---
+
+# Declaração de autoria
+
+> Declaro que esta atividade foi desenvolvida individualmente por mim e que o código apresentado é de minha autoria.
+
+**Nome:** Luiz Otavio de Faria Rosa
+
+**Data:** 18jun2026
