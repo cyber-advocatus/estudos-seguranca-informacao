@@ -18,3 +18,7 @@ __pycache__/
 .qiskit/
 qiskit-ibm.json
 *token*
+
+# Arquivos do Cisco Packet Tracer (binários, subir só quando decidir)
+*.pkt
+
